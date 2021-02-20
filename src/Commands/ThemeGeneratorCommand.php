@@ -70,6 +70,8 @@ class ThemeGeneratorCommand extends Command {
 						'layouts',
 						'partials/sections',
 						'views',
+						'languages',
+						'shortcodes',
 						'widgets',
 						]);
 
@@ -83,7 +85,11 @@ class ThemeGeneratorCommand extends Command {
 						'script.js'			=> 'assets/js/',
 						'theme.json'		=> '',
 						'gulpfile.js'		=> '',
-						'config.php'		=> ''
+						'config.php'		=> '',
+						'helper.php'		=> '',
+						'hooks.php'			=> '',
+						'theme-options.php' => '',
+						'widgets.php'		=> ''
 						]);
 
 		$this->info('Theme "'.$this->getTheme().'" has been created.');
@@ -118,7 +124,7 @@ class ThemeGeneratorCommand extends Command {
 
 			$path = $to.$file;
 
-			if (!$this->files->exists($this->getPath($path))){
+			if ( ! $this->files->exists($this->getPath($path) ) ) {
 				$file_path = $this->getPath($path);
 
 				$facade = $this->option('facade');
