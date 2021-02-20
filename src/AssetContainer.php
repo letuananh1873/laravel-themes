@@ -60,6 +60,7 @@ class AssetContainer {
     {
         static $assetUrl;
 
+
         // Remove this.
         $i = 'index.php';
 
@@ -98,6 +99,7 @@ class AssetContainer {
             // Asset URL without index.
             $basePath = str_contains($root, $i) ? str_replace('/'.$i, '', $root) : $root;
         }
+
 
         return $basePath.'/'.$path;
     }
@@ -194,13 +196,17 @@ class AssetContainer {
         {
             if ($url = parse_url($source)) { 
                 $type = (pathinfo($url['path'], PATHINFO_EXTENSION) == 'css') ? 'style' : 'script';
+
+                if( preg_match('/fonts.googleapis.com\/css/', $source) ) {
+                    $type = 'style';
+                }
                 // Remove unnecessary slashes from internal path.
                 if ( ! preg_match('|^//|', $source))
                 {
                     $source = ltrim($source, '/');
                 }
             }
-
+            
             return $this->$type($name, $source, $dependencies, $attributes);
         }
     }
@@ -324,12 +330,20 @@ class AssetContainer {
     {
         if ( ! array_key_exists('media', $attributes)) {
             $attributes['media'] = 'all';
-        }
+        }   
 
         // Prepend path to theme.
         if ($this->isUsePath()) {
-            $source = $this->evaluatePath($this->getCurrentPath().$source);
+            if( preg_match('/^.\/(.*)/', $source) ) {
+                $source = str_replace( 'assets/', '', $this->getCurrentPath() ) . str_replace('./', '', $source);
+            }else {
+                if( ! preg_match('/(https:\/\/|http:\/\/|\/\/)[a-z0-9_]+/', $source) ) {
+                    $source = $this->evaluatePath($this->getCurrentPath().$source);
+                }
+            }
+
         }
+
 
         $this->register('style', $name, $source, $dependencies, $attributes);
 
@@ -349,12 +363,14 @@ class AssetContainer {
     {
         // Prepaend path to theme.
         if ($this->isUsePath()) {
-            if( ! preg_match( '/^(http:\\/\\/|https:\\/\\/|\\/\\/)[a-z0-9_]+([\\-\\.]{1}[a-z_0-9]+)*\\.[_a-z]{2,5}'.'((:[0-9]{1,5})?\\/.*)?$/i' ,$source) ) {
-                $source = $this->evaluatePath($this->getCurrentPath().$source);
-            } 
+            if( preg_match('/^.\/(.*)/', $source) ) {
+                $source = str_replace( 'assets/', '', $this->getCurrentPath() ) . str_replace('./', '', $source);
+            }else {
+                if( ! preg_match('/(https:\/\/|http:\/\/|\/\/)[a-z0-9_]+/', $source) ) {
+                    $source = $this->evaluatePath($this->getCurrentPath().$source);
+                }
+            }
         }
-
-
 
         $this->register('script', $name, $source, $dependencies, $attributes);
 
@@ -384,6 +400,7 @@ class AssetContainer {
 
             $source = str_replace($currentTheme, $this->usePath, $source);
         }
+
 
         return $source;
     }

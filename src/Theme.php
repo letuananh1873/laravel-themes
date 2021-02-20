@@ -723,6 +723,21 @@ class Theme implements ThemeContract
     }
 
     /**
+     * Set up a partial.
+     *
+     * @param  string $view
+     * @param  array $args
+     * @throws UnknownPartialFileException
+     * @return mixed
+     */
+    public function shortcodes($view, $args = array())
+    {
+        $partialDir = $this->getThemeNamespace('shortcodes');
+
+        return $this->loadPartial($view, $partialDir, $args);
+    }
+
+    /**
      * The same as "partial", but having prefix layout.
      *
      * @param  string $view
@@ -788,18 +803,20 @@ class Theme implements ThemeContract
      * @throws UnknownWidgetClassException
      * @return Facuz\Theme\Widget
      */
-    public function widget($className, $attributes = array())
+    public function widget($widget, $attributes = array())
     {
         static $widgets = array();
 
+        $className = $widget['classname'];
         // If the class name is not lead with upper case add prefix "Widget".
-        if (! preg_match('|^[A-Z]|', $className)) {
-            $className = ucfirst($className);
+        if (! preg_match('|^[A-Z]|', $widget['classname'])) {
+            $className = ucfirst($widget['classname']);
         }
 
-        //$widgetNamespace = $this->getConfig('namespaces.widget');
+        $widgetNamespace = $widget['namespace'];
+        $className = $widgetNamespace.'\\'.$className;
 
-        if (! $instance = array_get($widgets, $className)) {
+        if ( ! $instance = array_get($widgets, $className)) {
             $reflector = new ReflectionClass($className);
 
             if (! $reflector->isInstantiable()) {
@@ -813,7 +830,6 @@ class Theme implements ThemeContract
         $instance->setAttributes($attributes);
         $instance->beginWidget();
         $instance->endWidget();
-
 
         return $instance;
     }
@@ -976,6 +992,8 @@ class Theme implements ThemeContract
         // Layout.
         $layout = ucfirst($this->layout);
 
+
+
         // Fire event global assets.
         $this->fire('asset', $this->asset);
 
@@ -987,7 +1005,7 @@ class Theme implements ThemeContract
 
         // Keeping arguments.
         $this->arguments = $args;
-
+        
         // Compile string blade, or from file path.
         switch ($type) {
             case 'blade' :

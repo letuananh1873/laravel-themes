@@ -4,6 +4,7 @@ use Closure;
 use Illuminate\View\Factory;
 use Illuminate\Config\Repository;
 
+
 abstract class Widget {
 
     /**
@@ -198,19 +199,23 @@ abstract class Widget {
     {
         if($this->enable == false) return '';
 
-        $path = $this->theme->getThemeNamespace('widgets.'.$this->template);
+        if( isset( $this->data['widget_namespace'] ) && $this->data['widget_namespace'] == 'Modules\Widget\Widgets' ) {
+            $path = 'widget::' . $this->template;
+        }
 
         // If not found in theme widgets directory, try to watch in views/widgets again.
         if($this->watch === true and ! $this->view->exists($path)){
-            $path = 'widgets.'.$this->template;
+            $path = $this->theme->getThemeNamespace('widgets.'.$this->template);
         }
-
+        
         // Error file not exists.
-        if(!$this->view->exists($path)){
+        if( ! $this->view->exists($path) ) {
             throw new UnknownWidgetFileException("Widget view [$this->template] not found.");
         }
 
         $widget = $this->view->make($path, $this->data)->render();
+
+
 
         return $widget;
     }
