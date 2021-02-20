@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Symfony\Component\HttpFoundation\Cookie;
 use Facuz\Theme\Contracts\Theme as ThemeContract;
 use Facuz\Theme\Manifest;
+use Illuminate\Support\Arr;
 
 class Theme implements ThemeContract
 {
@@ -413,7 +414,7 @@ class Theme implements ThemeContract
         // Evaluate theme config.
         $this->themeConfig = $this->evaluateConfig($this->themeConfig);
 
-        return is_null($key) ? $this->themeConfig : array_get($this->themeConfig, $key);
+        return is_null($key) ? $this->themeConfig : Arr::get($this->themeConfig, $key);
     }
 
     /**
