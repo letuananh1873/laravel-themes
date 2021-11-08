@@ -817,7 +817,7 @@ class Theme implements ThemeContract
         $widgetNamespace = $widget['namespace'];
         $className = $widgetNamespace.'\\'.$className;
 
-        if ( ! $instance = array_get($widgets, $className)) {
+        if ( ! $instance = Arr::get($widgets, $className)) {
             $reflector = new ReflectionClass($className);
 
             if (! $reflector->isInstantiable()) {
@@ -825,7 +825,7 @@ class Theme implements ThemeContract
             }
 
             $instance = $reflector->newInstance($this, $this->config, $this->view);
-            array_set($widgets, $className, $instance);
+            Arr::set($widgets, $className, $instance);
         }
 
         $instance->setAttributes($attributes);
