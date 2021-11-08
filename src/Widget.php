@@ -63,6 +63,9 @@ abstract class Widget {
      */
     public $enable = true;
 
+    private $path;
+    private $message;
+
     /**
      * Create a new theme instance.
      *
@@ -80,6 +83,25 @@ abstract class Widget {
         $this->config = $config;
 
         $this->view = $view;
+
+        if( $this->enable ) {
+            $this->path = 'widget::' . $this->template;
+
+            // If not found in theme widgets directory, try to watch in views/widgets again.
+            if( $this->watch === true ) {
+                $this->path = $this->theme->getThemeNamespace('widgets.'.$this->template);
+            }
+
+            if( ! $this->view->exists($this->path) ) {
+                $this->enable = false;
+
+                if( env('APP_DEBUG') ) {
+                    $this->enable = true;
+                }
+
+                $this->message = "Widget view <strong>$this->path</strong> not found.";
+            }
+        }
     }
 
     /**
@@ -197,21 +219,34 @@ abstract class Widget {
      */
     public function render()
     {
-        if($this->enable == false) return '';
-
-        if( isset( $this->data['widget_namespace'] ) && $this->data['widget_namespace'] == 'Modules\Widget\Widgets' ) {
-            $path = 'widget::' . $this->template;
+        if( empty($this->message) ) {
+            return $this->view->make($this->path, $this->data)->render();
+        }else {
+            // throw new UnknownWidgetFileException("Widget view [$this->template] not found.");
+            return sprintf(
+                '<div class="alert alert-danger alert-widget" style="font-size: 13px; padding: 5px 15px; color: #842029; background-color: #f8d7da; border: 1px solid #f5c2c7;">%1$s</div>',
+                $this->message
+            );
         }
+        // if($this->enable == false) return '';
 
-        // If not found in theme widgets directory, try to watch in views/widgets again.
-        if($this->watch === true and ! $this->view->exists($path)){
-            $path = $this->theme->getThemeNamespace('widgets.'.$this->template);
-        }
+        // if( isset( $this->data['widget_namespace'] ) && $this->data['widget_namespace'] == 'Modules\Widget\Widgets' ) {
+        //     $path = 'widget::' . $this->template;
+        // }
+
+        // // If not found in theme widgets directory, try to watch in views/widgets again.
+        // if( $this->watch === true ) {
+        //     $path = $this->theme->getThemeNamespace('widgets.'.$this->template);
+        // }
+
+        // if( empty($path) ) {
+        //     throw new UnknownWidgetFileException("Widget [$this->template] undefined variable &#36;path.");
+        // }
         
-        // Error file not exists.
-        if( ! $this->view->exists($path) ) {
-            throw new UnknownWidgetFileException("Widget view [$this->template] not found.");
-        }
+        // // Error file not exists.
+        // if( ! $this->view->exists($path) ) {
+        //     throw new UnknownWidgetFileException("Widget view [$this->template] not found.");
+        // }
 
         $widget = $this->view->make($path, $this->data)->render();
 
