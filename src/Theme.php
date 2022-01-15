@@ -418,6 +418,28 @@ class Theme implements ThemeContract
     }
 
     /**
+     * Get theme frontend config.
+     *
+     * @param  string $key
+     * @return mixed
+     */
+    public function getFrontConfig($key = null, $theme = null)
+    {
+        $return = [];
+
+            try {
+                // Require public theme config.
+                $minorConfigPath = base_path($this->themeConfig['themeDir'].'/'.$theme.'/config.php');
+
+                $return = $this->files->getRequire($minorConfigPath);
+            } catch (\Illuminate\Filesystem\FileNotFoundException $e) {
+                //var_dump($e->getMessage());
+            }
+
+        return is_null($key) ? $return : Arr::get($return, $key);
+    }
+
+    /**
      * Evaluate config.
      *
      * Config minor is at public folder [theme]/config.php,
