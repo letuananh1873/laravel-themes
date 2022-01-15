@@ -16,7 +16,8 @@
         }
     ],
     "require": {
-        "php": ">=5.4.0"
+        "php": ">=5.4.0",
+        "opis/closure": "^3.6.x-dev"
     },
     "require-dev": {
         "illuminate/support": ">=5.0.1"
