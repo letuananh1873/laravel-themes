@@ -98,6 +98,7 @@ class AssetContainer {
 
             // Asset URL without index.
             $basePath = str_contains($root, $i) ? str_replace('/'.$i, '', $root) : $root;
+            
         }
 
 
@@ -153,7 +154,7 @@ class AssetContainer {
 
         if(substr($source, 0, 7)=='/public') $source = substr($source, 7);
 
-        return url($source);
+        return home_url('ccc'.$source);
     }
 
 
@@ -343,7 +344,6 @@ class AssetContainer {
             }
 
         }
-
 
         $this->register('style', $name, $source, $dependencies, $attributes);
 
@@ -536,11 +536,15 @@ class AssetContainer {
             return $asset['source'];
         }
 
+        $asset['attributes']['id'] = $name;
+
+        $new_attributes = ['id' => $name . '-css'] + $asset['attributes'];
+
         // This line fixing config path.
         $asset['source'] = $this->configAssetUrl($asset['source']);
 
         //return HTML::$group($asset['source'], $asset['attributes']);
-        return $this->html($group, $asset['source'], $asset['attributes']);
+        return $this->html($group, $asset['source'], $new_attributes);
     }
 
     /**
@@ -556,7 +560,9 @@ class AssetContainer {
         $result = substr($source, 0, 7);
         if($result=='/public') $source = substr($source, 7);
 
-        $source = url($source);
+        if( ! preg_match('/(https?:\/\/)/', $source) ) {
+            $source = home_url($source);
+        }
         
         switch ($group)
         {
@@ -568,7 +574,9 @@ class AssetContainer {
 
                 $defaults = array('media' => 'all', 'type' => 'text/css', 'rel' => 'stylesheet');
 
+
                 $attributes = $attributes + $defaults;
+
 
                 $attributes['href'] = $source;
 

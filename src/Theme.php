@@ -408,6 +408,9 @@ class Theme implements ThemeContract
                 $this->themeConfig['themes'][$this->theme] = $this->files->getRequire($minorConfigPath);
             } catch (\Illuminate\Filesystem\FileNotFoundException $e) {
                 //var_dump($e->getMessage());
+            } catch (\Illuminate\Contracts\Filesystem\FileNotFoundException $e) {
+                echo $e->getMessage();
+                die();
             }
         }
 
