@@ -154,7 +154,7 @@ class AssetContainer {
 
         if(substr($source, 0, 7)=='/public') $source = substr($source, 7);
 
-        return home_url('ccc'.$source);
+        return home_url($source);
     }
 
 
